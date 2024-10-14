@@ -1,0 +1,105 @@
+import java.util.HashMap;
+
+class Product {
+    private String name;
+    private String description;
+    private double price;
+    private int quantity;
+
+    public Product(String name, String description, double price, int quantity) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                '}';
+    }
+}
+
+public class OnlineStore {
+    // Хэш-таблица для хранения товаров
+    private HashMap<String, Product> productMap;
+
+    // Конструктор
+    public OnlineStore() {
+        productMap = new HashMap<>();
+    }
+
+    // Метод для добавления товара
+    public void addProduct(String article, Product product) {
+        productMap.put(article, product);
+    }
+
+    // Метод для поиска товара по артикулу
+    public Product getProduct(String article) {
+        return productMap.get(article);
+    }
+
+    // Метод для удаления товара по артикулу
+    public void removeProduct(String article) {
+        productMap.remove(article);
+    }
+
+    // Метод для вывода всех товаров
+    public void printAllProducts() {
+        if (productMap.isEmpty()) {
+            System.out.println("No products available.");
+        } else {
+            for (String article : productMap.keySet()) {
+                System.out.println("Article: " + article + ", " + productMap.get(article));
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        // Создаем объект интернет-магазина
+        OnlineStore store = new OnlineStore();
+
+        // Добавляем товары
+        store.addProduct("A001", new Product("Laptop", "High-performance laptop", 1200.99, 10));
+        store.addProduct("A002", new Product("Smartphone", "Latest model smartphone", 799.50, 25));
+        store.addProduct("A003", new Product("Headphones", "Noise-cancelling headphones", 199.99, 50));
+
+        // Поиск товара по артикулу
+        System.out.println("Product with article A001: " + store.getProduct("A001"));
+
+        // Удаление товара по артикулу
+        store.removeProduct("A002");
+
+        // Вывод всех товаров
+        System.out.println("\nAll products in the store:");
+        store.printAllProducts();
+    }
+}
