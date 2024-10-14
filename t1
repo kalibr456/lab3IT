@@ -1,0 +1,168 @@
+import java.util.LinkedList;
+import java.util.Objects;
+
+public class HashTable<K, V> {
+    private static final int INITIAL_CAPACITY = 8;  // Начальный размер таблицы
+    private static final double LOAD_FACTOR = 0.75; // Коэффициент загрузки
+
+    private LinkedList<Entry<K, V>>[] table; // Массив списков для хранения пар "ключ-значение"
+    private int size; // Текущий размер (количество элементов)
+
+    // Конструктор по умолчанию
+    public HashTable() {
+        table = new LinkedList[INITIAL_CAPACITY];
+        size = 0;
+    }
+
+    // Хэш-функция для вычисления индекса
+    private int hash(K key) {
+        return Math.abs(key.hashCode()) % table.length;
+    }
+
+    // Метод для добавления новой пары "ключ-значение"
+    public void put(K key, V value) {
+        // Проверяем, не пора ли увеличивать размер таблицы
+        if (size >= LOAD_FACTOR * table.length) {
+            resize();  // Увеличиваем размер таблицы
+        }
+
+        int index = hash(key);
+        if (table[index] == null) {
+            table[index] = new LinkedList<>();
+        }
+
+        for (Entry<K, V> entry : table[index]) {
+            if (entry.getKey().equals(key)) {
+                entry.setValue(value); // Обновляем значение, если ключ уже есть
+                return;
+            }
+        }
+
+        // Если ключ не найден, добавляем новую пару
+        table[index].add(new Entry<>(key, value));
+        size++;
+    }
+
+    // Метод для получения значения по ключу
+    public V get(K key) {
+        int index = hash(key);
+        if (table[index] != null) {
+            for (Entry<K, V> entry : table[index]) {
+                if (entry.getKey().equals(key)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null; // Если ключ не найден
+    }
+
+    // Метод для удаления пары по ключу
+    public void remove(K key) {
+        int index = hash(key);
+        if (table[index] != null) {
+            for (Entry<K, V> entry : table[index]) {
+                if (entry.getKey().equals(key)) {
+                    table[index].remove(entry);
+                    size--;
+                    return;
+                }
+            }
+        }
+    }
+
+    // Метод для увеличения размера таблицы
+    private void resize() {
+        int newCapacity = table.length * 2;  // Увеличиваем размер вдвое
+        LinkedList<Entry<K, V>>[] newTable = new LinkedList[newCapacity]; // Создаём новую таблицу
+
+        // Переносим все элементы в новую таблицу
+        for (LinkedList<Entry<K, V>> bucket : table) {
+            if (bucket != null) {
+                for (Entry<K, V> entry : bucket) {
+                    int newIndex = Math.abs(entry.getKey().hashCode()) % newCapacity; // Новый индекс
+                    if (newTable[newIndex] == null) {
+                        newTable[newIndex] = new LinkedList<>();
+                    }
+                    newTable[newIndex].add(entry);  // Перемещаем элемент
+                }
+            }
+        }
+
+        // Заменяем старую таблицу на новую
+        table = newTable;
+    }
+
+    // Метод для получения текущего размера таблицы
+    public int size() {
+        return size;
+    }
+
+    // Метод для проверки, пуста ли таблица
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    // Внутренний класс для хранения пар "ключ-значение"
+    private static class Entry<K, V> {
+        private K key;
+        private V value;
+
+        public Entry(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public K getKey() {
+            return key;
+        }
+
+        public V getValue() {
+            return value;
+        }
+
+        public void setValue(V value) {
+            this.value = value;
+        }
+
+        // Переопределяем метод equals для корректного сравнения по ключу
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Entry)) return false;
+            Entry<?, ?> entry = (Entry<?, ?>) o;
+            return Objects.equals(key, entry.key);
+        }
+
+        // Переопределяем метод hashCode для соответствия с equals
+        @Override
+        public int hashCode() {
+            return Objects.hash(key);
+        }
+    }
+
+    public static void main(String[] args) {
+        HashTable<String, Integer> hashTable = new HashTable<>();
+
+        // Добавляем элементы в таблицу
+        hashTable.put("apple", 5);
+        hashTable.put("banana", 3);
+        hashTable.put("orange", 7);
+        hashTable.put("pear", 2);
+
+        // Получаем элемент
+        System.out.println("Value for 'apple': " + hashTable.get("apple")); // 5
+
+        // Добавляем больше элементов для проверки увеличения таблицы
+        hashTable.put("grape", 10);
+        hashTable.put("melon", 12);
+        hashTable.put("kiwi", 8);
+        hashTable.put("peach", 9);
+
+        // Выводим размер таблицы
+        System.out.println("Current size: " + hashTable.size()); // 8
+
+        // Удаляем элемент
+        hashTable.remove("banana");
+        System.out.println("Size after removal: " + hashTable.size()); // 7
+    }
+}
